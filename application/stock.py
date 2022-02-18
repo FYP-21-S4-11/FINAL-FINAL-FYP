@@ -88,6 +88,9 @@ def sendstocks():
                 stockindict = {"User": _username, "Activity": _activity, "Time": _datetime, "Quantity": _quantity,
                                "Product": _sku, "Remark": _remark}
 
+                # if sent out
+                activityreceived = _sku + ": " + _quantity + " received from "+_username
+                notificationrecdict = {"User": "Notification", "Activity": activityreceived, "Time": _datetime}
 
                 # check if stock sku
                 cur = ksql.cursor()
@@ -95,6 +98,7 @@ def sendstocks():
                 exist = cur.fetchall()
                 cur.close()
                 d = (0,)
+
                 if int(quantity) <= int(d[0]):
                     flash("No negative number!")
                     return render_template("sendstocks.html", ID=supplierCode, skuexist=skuexist, form= form)
@@ -115,6 +119,7 @@ def sendstocks():
                         ksql.commit()
                         cur.close()
                         flash("Successfully sent stocks to warehouse!")
+                        jsonproducer.send("notificationtopic", notificationrecdict)
                         jsonproducer.send("stocktopic", stockindict)
                         return redirect(url_for("supplierhome"))
                     else:
@@ -127,6 +132,7 @@ def sendstocks():
                         cur.close()
                         flash("Successfully sent stocks to warehouse!")
                         jsonproducer.send("stocktopic", stockindict)
+                        jsonproducer.send("notificationtopic", notificationrecdict)
                         return redirect(url_for("supplierhome"))
                 elif not quantity or not quantity.isnumeric() or int(quantity) <= 0:
                     flash("Please enter a valid quantity.")
@@ -140,6 +146,7 @@ def sendstocks():
                     ksql.commit()
                     cur.close()
                     flash("Successfully sent stocks to warehouse!")
+                    jsonproducer.send("notificationtopic", notificationrecdict)
                     jsonproducer.send("stocktopic", stockindict)
                     return redirect(url_for("supplierhome"))
                 else:
@@ -203,10 +210,12 @@ def remove():
             stockDamageddict = {"User": _username, "Activity": _activity, "Time": _datetime, "Quantity": _quantity,
                            "Product": _sku, "Remark": _remark}
             # if low on stock
-            _activitynoti = _sku + "Low On Stock"
+            _activitynoti = _sku + " Low On Stock"
 
             notificationdict = {"User": "Notification", "Activity": _activitynoti, "Time": _datetime}
-
+            #if sent out
+            activitysent = _sku+": "+_quantity+" out of stock due to damage"
+            notificationdmgdict = {"User": "Notification", "Activity": activitysent, "Time": _datetime}
             if request.method == "POST":
                 if prod:
                     cur = ksql.cursor()
@@ -215,9 +224,11 @@ def remove():
                     cur.close()
                     print(data)
                     d = (0,)
+                    e = (500,)
                     if int(quantity) > int(data[0]):
                         flash("Not enough stocks in the warehouse!")
                         return render_template("remove.html", prod=prod, form= form)
+
                     elif int(quantity) <= int(d[0]):
                         flash("No negative number!")
                         return render_template("remove.html", prod=prod, form=form)
@@ -229,6 +240,7 @@ def remove():
                         cur.close()
                         flash("No more stocks in the warehouse")
                         jsonproducer.send("notificationtopic", notificationdict)
+                        jsonproducer.send("notificationtopic", notificationdmgdict)
                         jsonproducer.send("stocktopic", stockDamageddict)
                         return redirect(url_for("stockmenu"))
                     elif int(quantity) < int(data[0]):
@@ -241,6 +253,7 @@ def remove():
                             jsonproducer.send("notificationtopic", notificationdict)
                         flash("Quantity updated!")
                         jsonproducer.send("stocktopic", stockDamageddict)
+                        jsonproducer.send("notificationtopic", notificationdmgdict)
                         return redirect(url_for("stockmenu"))
 
             else:
@@ -285,9 +298,12 @@ def sendstore():
                                "Product": _sku, "Remark": _remark}
 
                 # if low on stock
-                _activitynoti = _sku + "Low On Stock"
+                _activitynoti = _sku + " Low On Stock"
 
                 notificationdict = {"User": "Notification", "Activity": _activitynoti, "Time": _datetime}
+                # if sent out
+                activitysent = _sku + ": " + _quantity + " sent to "+_code
+                notificationsentdict = {"User": "Notification", "Activity": activitysent, "Time": _datetime}
 
                 if request.method == "POST":
                     if prod:
@@ -311,6 +327,7 @@ def sendstore():
                             flash("No more stocks in the warehouse")
                             jsonproducer.send("stocktopic", stockDamageddict)
                             jsonproducer.send("notificationtopic", notificationdict)
+                            jsonproducer.send("notificationtopic", notificationsentdict)
                             return redirect(url_for("stockmenu"))
                         elif int(quantity) < int(data[0]):
                             result = int(data[0]) - int(quantity)
@@ -322,6 +339,7 @@ def sendstore():
                                 jsonproducer.send("notificationtopic", notificationdict)
                             flash("Quantity updated!")
                             jsonproducer.send("stocktopic", stockDamageddict)
+                            jsonproducer.send("notificationtopic", notificationsentdict)
                             return redirect(url_for("stockmenu"))
 
                 else:
