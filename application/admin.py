@@ -1,18 +1,15 @@
-from flask import Flask, redirect, url_for, render_template, request, session, flash, json
-from flask_login import login_user, login_required, logout_user, current_user
-from datetime import date, datetime, time
-from webforms import LoginForm, TopicForm, ReportSelectForm
-import mysql.connector
-import pymysql
-from application import app, staff_permission, admin_permission
-from application import mydb as ksql
+from datetime import datetime
 
-#kafka stuff
-#=======================================
-import kafka
-from kafka import KafkaProducer
+from flask import redirect, url_for, render_template, request, session, flash, json
 from kafka import KafkaConsumer
-from datetime import date, datetime
+# kafka stuff
+# =======================================
+from kafka import KafkaProducer
+
+from application import app
+from application import mydb as ksql
+from webforms import TopicForm, ReportSelectForm
+
 
 def json_serializer(data):
     return json.dumps(data).encode("utf-8")

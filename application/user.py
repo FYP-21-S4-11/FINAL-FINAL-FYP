@@ -1,18 +1,15 @@
-import random
-from flask import Flask, redirect, url_for, render_template, request, session, flash, json
-from datetime import date, datetime, time
-from webforms import LoginForm
-import mysql.connector
-import pymysql
+import os.path
+from datetime import datetime
+
+from flask import redirect, url_for, render_template, request, session, flash, json
+# kafka stuff
+# =======================================
+from kafka import KafkaProducer
+
 from application import app
 from application import mydb as ksql
+from webforms import LoginForm
 
-#kafka stuff
-#=======================================
-import kafka
-from kafka import KafkaProducer
-from kafka import KafkaConsumer
-from datetime import date, datetime
 
 def json_serializer(data):
     return json.dumps(data).encode("utf-8")
@@ -110,3 +107,7 @@ def logout():
         return redirect(url_for("login"))
     else:
         return redirect(url_for("login"))
+
+@app.route("/features")
+def features():
+    return  render_template("features.html")

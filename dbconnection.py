@@ -3,7 +3,7 @@ class dbcon:
     mydb = mysql.connector.connect(
         host="localhost",
         user="root",
-        password="root",
+        password="kafka123@",
         port="3306",
         database="fypdatabase",
         auth_plugin="mysql_native_password",
