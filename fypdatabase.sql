@@ -62,7 +62,6 @@ CREATE TABLE `Product` (
   CONSTRAINT `SupCode` FOREIGN KEY (`SupplierCode`) REFERENCES `Supplier` (`SupplierCode`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
-/*KafkaLog*/
 CREATE TABLE `KafkaLog` (
   `User` varchar(255) DEFAULT NULL,
   `Activity` varchar(255) DEFAULT NULL,
@@ -71,7 +70,7 @@ CREATE TABLE `KafkaLog` (
   `StockName` varchar(255) DEFAULT NULL,
   `Remark` varchar(255) DEFAULT NULL,
   `Quantity` int DEFAULT NULL,
-  UNIQUE KEY `DateTime_UNIQUE` (`DateTime`)
+  UNIQUE KEY `DateTime_topic_UNIQUE` (`TopicName`,`DateTime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 
